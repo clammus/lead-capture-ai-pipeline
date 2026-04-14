@@ -1,0 +1,42 @@
+{
+  "name": "HW1 - Lead Capture Pipeline",
+  "version": "1.0.0",
+  "trigger": "webhook",
+  "nodes": [
+    {
+      "id": "node-1-trigger",
+      "type": "WebhookTrigger",
+      "name": "Incoming Lead Form",
+      "description": "Receives POST request containing {name, email, message}",
+      "next": ["node-2-processing"]
+    },
+    {
+      "id": "node-2-processing",
+      "type": "DataMapper",
+      "name": "Extract & Format Data",
+      "description": "Maps incoming HTTP payload to internal variables",
+      "next": ["node-3-google-sheets"]
+    },
+    {
+      "id": "node-3-google-sheets",
+      "type": "GoogleSheetsConnector",
+      "name": "Push to Google Sheets",
+      "description": "Appends captured lead data to Google Sheets",
+      "next": ["node-4-ai"]
+    },
+    {
+      "id": "node-4-ai",
+      "type": "LLMCompletion",
+      "name": "Generate Lead Summary",
+      "description": "Calls LLM to generate a quick summary of the user's message",
+      "next": ["node-5-end"]
+    },
+    {
+      "id": "node-5-end",
+      "type": "SuccessTerminator",
+      "name": "Workflow Complete",
+      "description": "Ends process gracefully",
+      "next": []
+    }
+  ]
+}

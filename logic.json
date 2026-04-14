@@ -1,0 +1,40 @@
+{
+  "workflow_id": "HW1 - Lead Capture Pipeline",
+  "config": {
+    "node-1-trigger": {
+      "method": "POST",
+      "path": "/api/webhook/lead-capture",
+      "authentication": "none",
+      "expected_payload": {
+        "name": "string",
+        "email": "string",
+        "message": "string"
+      }
+    },
+    "node-2-processing": {
+      "mapping_rules": {
+        "leadName": "{{ incoming.body.name }}",
+        "leadEmail": "{{ incoming.body.email }}",
+        "leadMessage": "{{ incoming.body.message }}",
+        "receivedAt": "{{ $timestamp }}"
+      }
+    },
+    "node-3-google-sheets": {
+      "spreadsheet_id": "{{ $env.GOOGLE_SHEETS_ID }}",
+      "credentials_path": "{{ $env.GOOGLE_SERVICE_ACCOUNT_PATH }}",
+      "action": "appendRow",
+      "data": {
+        "Name": "{{ node-2-processing.leadName }}",
+        "Email": "{{ node-2-processing.leadEmail }}",
+        "Message": "{{ node-2-processing.leadMessage }}",
+        "Date": "{{ node-2-processing.receivedAt }}"
+      }
+    },
+    "node-4-ai": {
+      "provider": "google-gemini",
+      "model": "gemini-1.5-pro",
+      "api_key": "{{ $env.GEMINI_API_KEY }}",
+      "prompt": "You are a sales assistant. Briefly summarize this incoming lead message in 1 or 2 sentences.\n\nName: {{ node-2-processing.leadName }}\nMessage: {{ node-2-processing.leadMessage }}\n\nSummary:"
+    }
+  }
+}
