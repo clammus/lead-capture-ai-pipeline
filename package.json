@@ -1,0 +1,27 @@
+{
+  "name": "lead-capture-ai-pipeline",
+  "version": "1.0.0",
+  "description": "<<<<<<< HEAD\r # Antigravity HW1 - Lead Capture to CRM Workflow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clammus/lead-capture-ai-pipeline.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/clammus/lead-capture-ai-pipeline/issues"
+  },
+  "homepage": "https://github.com/clammus/lead-capture-ai-pipeline#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "googleapis": "^171.4.0"
+  }
+}

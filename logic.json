@@ -32,7 +32,7 @@
     },
     "node-4-ai": {
       "provider": "google-gemini",
-      "model": "gemini-1.5-pro",
+      "model": "gemini-2.5-flash-lite",
       "api_key": "{{ $env.GEMINI_API_KEY }}",
       "prompt": "You are a sales assistant. Briefly summarize this incoming lead message in 1 or 2 sentences.\n\nName: {{ node-2-processing.leadName }}\nMessage: {{ node-2-processing.leadMessage }}\n\nSummary:"
     }
