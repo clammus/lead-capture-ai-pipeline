@@ -15,24 +15,31 @@
       "type": "DataMapper",
       "name": "Extract & Format Data",
       "description": "Maps incoming HTTP payload to internal variables",
-      "next": ["node-3-google-sheets"]
+      "next": ["node-3-validation"]
     },
     {
-      "id": "node-3-google-sheets",
-      "type": "GoogleSheetsConnector",
-      "name": "Push to Google Sheets",
-      "description": "Appends captured lead data to Google Sheets",
+      "id": "node-3-validation",
+      "type": "Validator",
+      "name": "Validate Lead Data",
+      "description": "Checks for missing fields and valid email format",
       "next": ["node-4-ai"]
     },
     {
       "id": "node-4-ai",
       "type": "LLMCompletion",
-      "name": "Generate Lead Summary",
-      "description": "Calls LLM to generate a quick summary of the user's message",
-      "next": ["node-5-end"]
+      "name": "Analyze Intent and Urgency",
+      "description": "Calls LLM to analyze the message intent and urgency",
+      "next": ["node-5-google-sheets"]
     },
     {
-      "id": "node-5-end",
+      "id": "node-5-google-sheets",
+      "type": "GoogleSheetsConnector",
+      "name": "Push to Google Sheets",
+      "description": "Appends captured lead data to Google Sheets including validation and AI metadata",
+      "next": ["node-6-end"]
+    },
+    {
+      "id": "node-6-end",
       "type": "SuccessTerminator",
       "name": "Workflow Complete",
       "description": "Ends process gracefully",

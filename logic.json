@@ -19,22 +19,34 @@
         "receivedAt": "{{ $timestamp }}"
       }
     },
-    "node-3-google-sheets": {
-      "spreadsheet_id": "{{ $env.GOOGLE_SHEETS_ID }}",
-      "credentials_path": "{{ $env.GOOGLE_SERVICE_ACCOUNT_PATH }}",
-      "action": "appendRow",
-      "data": {
-        "Name": "{{ node-2-processing.leadName }}",
-        "Email": "{{ node-2-processing.leadEmail }}",
-        "Message": "{{ node-2-processing.leadMessage }}",
-        "Date": "{{ node-2-processing.receivedAt }}"
+    "node-3-validation": {
+      "input": {
+        "name": "{{ node-2-processing.leadName }}",
+        "email": "{{ node-2-processing.leadEmail }}",
+        "message": "{{ node-2-processing.leadMessage }}"
       }
     },
     "node-4-ai": {
       "provider": "google-gemini",
       "model": "gemini-2.5-flash-lite",
       "api_key": "{{ $env.GEMINI_API_KEY }}",
-      "prompt": "You are a sales assistant. Briefly summarize this incoming lead message in 1 or 2 sentences.\n\nName: {{ node-2-processing.leadName }}\nMessage: {{ node-2-processing.leadMessage }}\n\nSummary:"
+      "prompt": "You are an AI assistant. Analyze the following incoming lead message. Output a raw JSON object with no markdown formatting containing EXACTLY two keys: 'Intent' (e.g., Support, Sales, Partnership) and 'Urgency' (e.g., High, Medium, Low).\n\nMessage: {{ node-2-processing.leadMessage }}",
+      "parseJSON": true
+    },
+    "node-5-google-sheets": {
+      "spreadsheet_id": "{{ $env.GOOGLE_SHEETS_ID }}",
+      "credentials_path": "{{ $env.GOOGLE_SERVICE_ACCOUNT_PATH }}",
+      "action": "appendRow",
+      "range": "Leads!A:G",
+      "data": {
+        "Name": "{{ node-2-processing.leadName }}",
+        "Email": "{{ node-2-processing.leadEmail }}",
+        "Message": "{{ node-2-processing.leadMessage }}",
+        "Date": "{{ node-2-processing.receivedAt }}",
+        "ValidationStatus": "{{ node-3-validation.status }}",
+        "Intent": "{{ node-4-ai.Intent }}",
+        "Urgency": "{{ node-4-ai.Urgency }}"
+      }
     }
   }
 }

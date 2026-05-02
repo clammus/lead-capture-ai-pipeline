@@ -75,6 +75,17 @@ app.post('/api/webhook/lead-capture', async (req, res) => {
         state[nodeDef.id] = mapped;
         console.log(`Mapped Data:`, mapped);
       } 
+      else if (nodeDef.type === 'Validator') {
+        const input = processObject(nodeConfig.input, state);
+        const { name, email, message } = input || {};
+        let isValid = true;
+        if (!name || !email || !message) isValid = false;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) isValid = false;
+        
+        state[nodeDef.id] = { status: isValid ? "Valid" : "Invalid" };
+        console.log(`Validation Status: ${state[nodeDef.id].status}`);
+      } 
       else if (nodeDef.type === 'GoogleSheetsConnector') {
         const auth = new google.auth.GoogleAuth({
           keyFile: interpolate(nodeConfig.credentials_path, state) || './credentials.json',
@@ -85,12 +96,13 @@ app.post('/api/webhook/lead-capture', async (req, res) => {
         const data = processObject(nodeConfig.data, state);
         const spreadsheetId = interpolate(nodeConfig.spreadsheet_id, state);
         
+        const range = interpolate(nodeConfig.range, state) || 'Leads!A:D';
         const request = {
           spreadsheetId,
-          range: 'Leads!A:D',
+          range: range,
           valueInputOption: 'USER_ENTERED',
           resource: {
-            values: [[data.Name, data.Email, data.Message, data.Date]],
+            values: [Object.values(data)],
           },
         };
         await sheets.spreadsheets.values.append(request);
@@ -102,10 +114,22 @@ app.post('/api/webhook/lead-capture', async (req, res) => {
          
          const prompt = interpolate(nodeConfig.prompt, state);
          const result = await model.generateContent(prompt);
-         const response = result.response.text();
+         let response = result.response.text();
          
-         state[nodeDef.id] = { summary: response };
-         console.log(`AI Summary:\n${response}`);
+         if (nodeConfig.parseJSON) {
+           try {
+             response = response.replace(/```json/gi, '').replace(/```/g, '').trim();
+             const parsed = JSON.parse(response);
+             state[nodeDef.id] = parsed;
+             console.log(`AI JSON Output:`, parsed);
+           } catch (e) {
+             state[nodeDef.id] = { Intent: "Unknown", Urgency: "Unknown", raw: response };
+             console.log(`AI JSON Parse Error:`, e.message);
+           }
+         } else {
+           state[nodeDef.id] = { summary: response };
+           console.log(`AI Summary:\n${response}`);
+         }
       }
       else if (nodeDef.type === 'SuccessTerminator') {
          console.log(`Workflow Complete.`);
