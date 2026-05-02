@@ -30,7 +30,7 @@
       "provider": "google-gemini",
       "model": "gemini-2.5-flash-lite",
       "api_key": "{{ $env.GEMINI_API_KEY }}",
-      "prompt": "You are an AI assistant. Analyze the following incoming lead message. Output a raw JSON object with no markdown formatting containing EXACTLY two keys: 'Intent' (e.g., Support, Sales, Partnership) and 'Urgency' (e.g., High, Medium, Low).\n\nMessage: {{ node-2-processing.leadMessage }}",
+      "prompt": "You are an AI assistant analyzing an incoming lead message. You must output ONLY a valid, raw JSON object with no markdown and no extra text. The JSON object must contain EXACTLY these three string keys: \"Intent\" (e.g. Sales, Support, Partnership, Spam), \"Urgency\" (e.g. High, Medium, Low), and \"Summary\" (1-2 sentences). \n\nMessage: {{ node-2-processing.leadMessage }}\n\nJSON:",
       "parseJSON": true
     },
     "node-5-google-sheets": {

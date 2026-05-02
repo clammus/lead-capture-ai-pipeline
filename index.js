@@ -121,7 +121,11 @@ app.post('/api/webhook/lead-capture', async (req, res) => {
              response = response.replace(/```json/gi, '').replace(/```/g, '').trim();
              const parsed = JSON.parse(response);
              state[nodeDef.id] = parsed;
-             console.log(`AI JSON Output:`, parsed);
+             console.log('\n--- AI Analysis Response ---');
+             console.log('Intent: ', parsed.Intent || 'Not Provided by AI');
+             console.log('Urgency:', parsed.Urgency || 'Not Provided by AI');
+             console.log('Summary:', parsed.Summary || 'Not Provided by AI');
+             console.log('----------------------------\n');
            } catch (e) {
              state[nodeDef.id] = { Intent: "Unknown", Urgency: "Unknown", raw: response };
              console.log(`AI JSON Parse Error:`, e.message);
